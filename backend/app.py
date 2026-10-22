@@ -1,21 +1,25 @@
 from flask import Flask, request
+from flask_restful import Api, Resource
+from extensions import db, jwt
+from models import Task, User
 
 app = Flask(__name__)
 
-@app.route("/", methods=["GET"])
-def hello_world():
-    return "<p>Hello, World!</p>"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
+app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
 
-@app.route("/about", methods=["GET"])
-def about():
-    return "<p>This is the about page.</p>"
 
-@app.route("/test", methods=["POST"])
-def test():
-    data = request.get_json()
-    name = data.get("name")
-    print(f"Received name: {name}")
-    return f"<p>this is post method, {name}</p>"
+api = Api(app)
+db.init_app(app)
+jwt.init_app(app)
+
+with app.app_context():
+    db.create_all()
+
+from api import register_routes
+
+register_routes(api)
+
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
