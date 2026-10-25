@@ -8,7 +8,8 @@
     <input required type="text" name="email" id="email" v-model="email" placeholder="Email">
     <input required type="text" name="password" id="password" v-model="password" placeholder="Password">
     <button type="submit">Register</button>
-</form>
+    <router-link to="/login">Login</router-link>
+    </form>
 
 </template>
 

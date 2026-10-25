@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from flask import Flask, request
 from flask_restful import Api, Resource
 from extensions import db, jwt
@@ -9,7 +11,8 @@ CORS(app)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
-
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
+    
 
 api = Api(app)
 db.init_app(app)

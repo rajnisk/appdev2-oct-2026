@@ -1,10 +1,19 @@
 from flask_restful import Resource, request
 from models import Task
 from extensions import db
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from models import User
 
 class TaskResource(Resource):
+    @jwt_required()
     def get(self, task_id=None):
-        if not task_id:
+        email = get_jwt_identity()
+        user = User.query.filter_by(email=email).first()
+        if not task_id :
+            print("*"*10, user.role)
+            if user.role != "admin":
+                return {"message": "You are not authorized to access this resource."}, 403
+
             tasks = Task.query.all()
             data = []
             for task in tasks:
@@ -18,6 +27,9 @@ class TaskResource(Resource):
             return {"message": "all the tasks!", "tasks": data}, 200
         else:
             task = Task.query.get_or_404(task_id)
+            print("*"*10, task.assigned_to, user.id)
+            if task.assigned_to != user.id and user.role != "admin":
+                return {"message": "You are not authorized to access this task."}, 403
             task_data = {
                 "id": task.id,
                 "title": task.title,
@@ -26,7 +38,12 @@ class TaskResource(Resource):
             }
             return {"message": "task record of given task_id", "task": task_data}
 
+    @jwt_required()
     def post(self):
+        email = get_jwt_identity()
+        user = User.query.filter_by(email=email).first()
+        if user.role != "admin":
+            return {"message": "You are not authorized to create a task."}, 403
         data = request.get_json()
         title = data.get("title")
         description = data.get("description")
@@ -37,7 +54,12 @@ class TaskResource(Resource):
         db.session.commit()
         return {"message": "task created!"}, 201
 
+    @jwt_required()
     def put(self, task_id):
+        email = get_jwt_identity()
+        user = User.query.filter_by(email=email).first()
+        if user.role != "admin":
+            return {"message": "You are not authorized to update a task."}, 403
         data = request.get_json()
         title = data.get("title")
         description = data.get("description")
@@ -50,8 +72,12 @@ class TaskResource(Resource):
 
         db.session.commit()
         return {"message":"task updated!!"}
-
+    @jwt_required()
     def delete(self, task_id):
+        email = get_jwt_identity()
+        user = User.query.filter_by(email=email).first()
+        if user.role != "admin":
+            return {"message": "You are not authorized to delete a task."}, 403
         task = Task.query.get_or_404(task_id)
         db.session.delete(task)
         db.session.commit()

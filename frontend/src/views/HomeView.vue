@@ -67,30 +67,49 @@ export default {
     },
 
     async fetchTasks(){
-
-        const res = await axios.get('http://127.0.0.1:5000/tasks')
+        const token = localStorage.getItem('token');
+        const res = await axios.get('http://127.0.0.1:5000/tasks',{
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
         this.tasks = res.data.tasks
-
     },
     async deleteTask(id){
+        const token = localStorage.getItem('token');
 
-        const res = await axios.delete('http://127.0.0.1:5000/task/'+id)
+        const res = await axios.delete('http://127.0.0.1:5000/task/'+id, {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
         this.fetchTasks()
 
     },
     async addTask(id){
+                const token = localStorage.getItem('token');
+
         const res = await axios.post('http://127.0.0.1:5000/tasks',
         {   title:  this.newTaskTitle,
             description:    this.newTaskDescription,
             assigned_to: this.user_id
+        },{
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
         })
         this.fetchTasks()
     },
         async updateTask(id){
+        const token = localStorage.getItem('token');
         const res = await axios.put('http://127.0.0.1:5000/task/'+id,
         {   title:  this.newTaskTitle,
             description:    this.newTaskDescription,
             assigned_to: this.user_id
+        }, {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
         })
         this.fetchTasks()
 
