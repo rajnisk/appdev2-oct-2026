@@ -1,9 +1,6 @@
 <template>
-
-
 <form @submit.prevent="register">
     <h2>Register</h2>
-
     <input required type="text" name="full_name" id="fullname" v-model="full_name" placeholder="Full Name">
     <input required type="text" name="email" id="email" v-model="email" placeholder="Email">
     <input required type="text" name="password" id="password" v-model="password" placeholder="Password">

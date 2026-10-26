@@ -1,13 +1,14 @@
+from datetime import datetime
+from extensions import cache
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 class HelloWorld(Resource):
-
-    @jwt_required()
+    @cache.cached(timeout=60)  # Cache this endpoint for 60 seconds
     def get(self):
-        email = get_jwt_identity()
-        print(email)
-        return {"message": "this is get method!", "email": email}, 200
+        print("GET request received")
+        time_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return {"message": "this is get method!", "time": time_now}, 200
 
     def post(self):
         return {"message": "Created!"}, 201
@@ -16,3 +17,9 @@ class HelloWorld(Resource):
     
     def delete(self):
         return {"message": "deleted!"}, 201
+
+class DeleteCache(Resource):
+
+    def get(self):
+        cache.clear()
+        return {"message": "cache cleared!!"}

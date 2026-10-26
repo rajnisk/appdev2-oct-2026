@@ -1,11 +1,12 @@
 from flask_restful import Resource, request
 from models import Task
-from extensions import db
+from extensions import db, cache
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import User
 
 class TaskResource(Resource):
     @jwt_required()
+    @cache.cached(timeout=360)
     def get(self, task_id=None):
         email = get_jwt_identity()
         user = User.query.filter_by(email=email).first()
@@ -71,6 +72,7 @@ class TaskResource(Resource):
         task.assigned_to = assigned_to
 
         db.session.commit()
+        cache.delete_memoized(self.get, task_id)  # Clear the cache for this specific task
         return {"message":"task updated!!"}
     @jwt_required()
     def delete(self, task_id):
