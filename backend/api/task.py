@@ -18,12 +18,7 @@ class TaskResource(Resource):
             tasks = Task.query.all()
             data = []
             for task in tasks:
-                data.append({
-                    "id": task.id,
-                    "title": task.title,
-                    "description": task.description,
-                    "assigned_to": task.assigned_to
-                })
+                data.append(task.to_dict())
             print(data)
             return {"message": "all the tasks!", "tasks": data}, 200
         else:
@@ -31,12 +26,7 @@ class TaskResource(Resource):
             print("*"*10, task.assigned_to, user.id)
             if task.assigned_to != user.id and user.role != "admin":
                 return {"message": "You are not authorized to access this task."}, 403
-            task_data = {
-                "id": task.id,
-                "title": task.title,
-                "description": task.description,
-                "assigned_to": task.assigned_to
-            }
+            task_data = task.to_dict()
             return {"message": "task record of given task_id", "task": task_data}
 
     @jwt_required()

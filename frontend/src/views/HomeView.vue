@@ -2,6 +2,8 @@
     <h1>Home</h1>
     <p>Welcome, {{ name }}!</p>
     <p> {{ msg }}!</p>
+    <button class="btn btn-danger" @click="logout()">Logout</button> 
+    <br>
     <input type="text"  v-model="name">
     <button @click="fetchTasks">click me</button>  
     <button @click="addNum()">click to add</button> 
@@ -122,8 +124,18 @@ export default {
         else{
             this.$router.push({ name: 'login' });
         }
+    },
+    async logout(){
+        const token = localStorage.getItem('token');
+        const res = await axios.post('http://127.0.0.1:5000/logout',{
+        },{
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+        localStorage.removeItem('token');
+        this.$router.push({ name: 'login' });
     }
-
 
   },
   computed:{

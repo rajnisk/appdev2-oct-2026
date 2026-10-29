@@ -34,8 +34,22 @@ db.init_app(app)
 jwt.init_app(app)
 cache.init_app(app)
 
+def create_admin_user():
+    admin = User.query.filter_by(email="admin@local").first()
+    if not admin:
+        admin = User(full_name="Admin User", email="admin@local", password_hash="admin", role="admin")
+        db.session.add(admin)
+        db.session.commit()
+        print("Admin user created.")
+    else:
+        print("Admin user already exists.")
+
 with app.app_context():
+    # db.drop_all()  # Drop all tables (use with caution)
     db.create_all()
+    create_admin_user()
+
+
 
 from api import register_routes
 

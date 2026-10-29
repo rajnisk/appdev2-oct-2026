@@ -1,8 +1,11 @@
 from flask_restful import Resource, request
 from models import User
-from extensions import db
+from extensions import db, jwt
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt, jwt_required
+
+blocklist = set()
+
 
 class Login(Resource):
     def post(self):
@@ -12,6 +15,8 @@ class Login(Resource):
         password = data.get("password")
 
         user = User.query.filter_by(email=email).first()
+        print("user:", user)
+        # <User>
         if not user:
             return {"message": "invalid email!"}
         if not check_password_hash(user.password_hash, password):
@@ -36,3 +41,15 @@ class Register(Resource):
         db.session.commit()
 
         return {"message": "user registration succesful!"}
+
+
+@jwt.token_in_blocklist_loader
+def check_token(jwt_header, jwt_payload):
+    return jwt_payload["jti"] in blocklist
+
+
+class Logout(Resource):
+    @jwt_required()
+    def post(self):
+        blocklist.add(get_jwt()["jti"])
+        return {"message": "Logged out successfully"}, 200
